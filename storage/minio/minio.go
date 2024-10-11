@@ -33,7 +33,7 @@ type Config struct {
 	UseSSL          bool
 }
 
-func NewClient(appName string, profileBufferLength int64, keyPrefix string, cfg *Config) (*Client, error) {
+func New(_ context.Context, appName string, profileBufferLength int64, keyPrefix string, cfg *Config) (*Client, error) {
 	client, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKeyID, cfg.SecretAccessKey, cfg.Token),
 		Secure: cfg.UseSSL,
