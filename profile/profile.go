@@ -17,14 +17,14 @@ type Profiler struct {
 
 	cancelFunc context.CancelFunc
 
-	period   time.Duration
+	interval time.Duration
 	duration time.Duration
 }
 
-func NewProfiler(storage storage.Storage, period, duration time.Duration) *Profiler {
+func NewProfiler(storage storage.Storage, interval, duration time.Duration) *Profiler {
 	return &Profiler{
 		storage:  storage,
-		period:   period,
+		interval: interval,
 		duration: duration,
 	}
 }
@@ -42,30 +42,40 @@ func collectCpuProfile(duration time.Duration) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (p *Profiler) Run(ctx context.Context) error {
+func (p *Profiler) Run(ctx context.Context) (<-chan error, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	p.cancelFunc = cancel
-	ticker := time.NewTicker(p.period)
+	ticker := time.NewTicker(p.interval)
 	defer ticker.Stop()
 
 	done := ctx.Done()
 
-	for {
-		select {
-		case <-done:
-			return nil
-		case <-ticker.C:
-			now := time.Now()
-			pf, err := collectCpuProfile(p.duration)
-			if err != nil {
-				return fmt.Errorf("failed to collect CPU profile: %w", err)
-			}
+	errCh := make(chan error, 32)
 
-			if err := p.storage.SaveProfile(ctx, now, pf); err != nil {
-				return fmt.Errorf("failed to save profile: %w", err)
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				go func() {
+					now := time.Now()
+					pf, err := collectCpuProfile(p.duration)
+					if err != nil {
+						errCh <- fmt.Errorf("failed to collect CPU profile: %w", err)
+						return
+					}
+
+					if err := p.storage.SaveProfile(ctx, now, pf); err != nil {
+						errCh <- fmt.Errorf("failed to save profile: %w", err)
+						return
+					}
+				}()
 			}
 		}
-	}
+	}()
+
+	return errCh, nil
 }
 
 func (p *Profiler) Stop() {
