@@ -4,9 +4,13 @@ pgolib is a golang library for profile guided optimization.
 
 ## Usage
 
+### Install
+
 ```shell
 go get github.com/snowmerak/pgolib
 ```
+
+### Profile
 
 ```go
 package main
@@ -54,4 +58,15 @@ loop:
 	
 	log.Println("done")
 }
+```
+
+### Download and Merge
+
+Refer to [pgolib-sample.go](./sample.go)
+
+### Build
+
+```shell
+go run sample.go # download and merge profiles to profile.pprof
+docker build -t sample:latest -f Sample.Dockerfile --build-arg PGO=profile.pprof . # build with profile.pprof
 ```
