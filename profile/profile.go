@@ -22,6 +22,10 @@ type Profiler struct {
 }
 
 func NewProfiler(storage storage.Storage, interval, duration time.Duration) *Profiler {
+	if interval < duration {
+		interval = duration + 100*time.Millisecond
+	}
+
 	return &Profiler{
 		storage:  storage,
 		interval: interval,
