@@ -69,7 +69,7 @@ func (l *LocalDir) GetProfiles(_ context.Context, startedAt, endedAt time.Time) 
 	sizeList := make([]int64, 0, len(entries))
 loop:
 	for _, entry := range entries {
-		if entry.IsDir() || strings.HasSuffix(entry.Name(), storage.Extension) {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), storage.Extension) {
 			continue loop
 		}
 
