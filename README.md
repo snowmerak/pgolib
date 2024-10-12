@@ -70,3 +70,7 @@ Refer to [pgolib-sample.go](./sample.go)
 go run sample.go # download and merge profiles to profile.pprof
 docker build -t sample:latest -f Sample.Dockerfile --build-arg PGO=profile.pprof . # build with profile.pprof
 ```
+
+## Recommendation
+
+Use appropriate lifetime management tools to prevent profiles from increasing indefinitely.
