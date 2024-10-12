@@ -46,13 +46,13 @@ func (p *Profiler) Run(ctx context.Context) (<-chan error, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	p.cancelFunc = cancel
 	ticker := time.NewTicker(p.interval)
-	defer ticker.Stop()
 
 	done := ctx.Done()
 
 	errCh := make(chan error, 32)
 
 	go func() {
+		defer ticker.Stop()
 		for {
 			select {
 			case <-done:
