@@ -11,7 +11,7 @@ const Extension = ".pprof"
 
 // MakeFilename generates a filename for the profile data.
 func MakeFilename(prefix string, createdAt time.Time) string {
-	return fmt.Sprintf("%s-%s%s", prefix, createdAt.Format(time.RFC3339), Extension)
+	return fmt.Sprintf("%s-%d%s", prefix, createdAt.UnixMilli(), Extension)
 }
 
 // Storage is an interface that defines the methods that a storage system for golang profiles for PGO can implement.
